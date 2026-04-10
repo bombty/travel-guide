@@ -170,7 +170,7 @@ export default function App(){
   const sendAi=async()=>{
     if(!aiIn.trim())return;const msg=aiIn.trim();setAiIn("");setAiMsgs(p=>[...p,{r:"user",t:msg}]);setAiLoad(true);
     const ctx=`Kişisel gezi rehberisin. Kullanıcı: Aslan, ${ct.n}'da. Bugün: ${day?.spots?.map(s=>`${fm(s.startMin)} ${s.name}`).join(", ")}. Kısa samimi Türkçe, emoji kullan. Web search ile güncel bilgi çek. Para birimi: ${ct.cur}, kur≈${ct.rate} TRY.`;
-    try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:ctx,messages:[...aiMsgs.map(m=>({role:m.r==="user"?"user":"assistant",content:m.t})),{role:"user",content:msg}],tools:[{type:"web_search_20250305",name:"web_search"}]})});const d=await r.json();const t=(d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n")||"Cevap alınamadı.";setAiMsgs(p=>[...p,{r:"assistant",t}])}catch{setAiMsgs(p=>[...p,{r:"assistant",t:"⚠️ Bağlantı hatası."}])}setAiLoad(false)};
+    try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":localStorage.getItem("tg_key")||"","anthropic-dangerous-direct-browser-access":"true","x-api-key":apiKey,"anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:ctx,messages:[...aiMsgs.map(m=>({role:m.r==="user"?"user":"assistant",content:m.t})),{role:"user",content:msg}],tools:[{type:"web_search_20250305",name:"web_search"}]})});const d=await r.json();const t=(d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n")||"Cevap alınamadı.";setAiMsgs(p=>[...p,{r:"assistant",t}])}catch{setAiMsgs(p=>[...p,{r:"assistant",t:"⚠️ Bağlantı hatası."}])}setAiLoad(false)};
   useEffect(()=>{aiRef.current&&(aiRef.current.scrollTop=aiRef.current.scrollHeight)},[aiMsgs]);
 
   /* budget calc */
@@ -178,32 +178,32 @@ export default function App(){
   const tripBudget=days.reduce((s,d)=>s+d.spots.reduce((ss,sp)=>ss+(sp.cost||0)*((CITY[d.city]?.rate)||1),0),0);
 
   const D=dark;
-  const css={app:{minHeight:"100vh",background:D?"#0c0f14":"#F5F0EB",fontFamily:"'Outfit',sans-serif",paddingBottom:64,color:D?"#e0e0e0":"#333",transition:"background .3s,color .3s"},nav:{position:"fixed",bottom:0,left:0,right:0,display:"flex",background:D?"#1a1d24":"#fff",borderTop:`1px solid ${D?"#2a2d34":"#eee"}`,zIndex:300},nb:a=>({flex:1,padding:"6px 0 4px",border:"none",background:"none",display:"flex",flexDirection:"column",alignItems:"center",gap:1,cursor:"pointer",color:a?(D?"#64B5F6":"#1565C0"):(D?"#666":"#aaa"),fontSize:9,fontWeight:a?700:500,fontFamily:"'Outfit',sans-serif"}),card:{background:D?"#1a1d24":"#fff",borderRadius:12,overflow:"hidden",boxShadow:D?"0 1px 6px rgba(0,0,0,.2)":"0 1px 6px rgba(0,0,0,.05)"},txt:{color:D?"#e0e0e0":"#1a1a2e"},sub:{color:D?"#999":"#777"},bg2:D?"#222630":"#F3F4F6",bdr:D?"#2a2d34":"#eee",inp:{background:D?"#222630":"#fff",color:D?"#e0e0e0":"#333",border:`1px solid ${D?"#333":"#ddd"}`}};
+  const css={app:{minHeight:"100vh",background:D?"#0c0f14":"#F5F0EB",fontFamily:"'Outfit',sans-serif",paddingBottom:64,color:D?"#e0e0e0":"#333",transition:"background .3s,color .3s"},nav:{position:"fixed",bottom:0,left:0,right:0,display:"flex",background:D?"#1a1d24":"#fff",borderTop:`1px solid ${D?"#2a2d34":"#eee"}`,zIndex:300},nb:a=>({flex:1,padding:"6px 0 4px",border:"none",background:"none",display:"flex",flexDirection:"column",alignItems:"center",gap:1,cursor:"pointer",color:a?(D?"#64B5F6":"#1565C0"):(D?"#666":"#aaa"),fontSize:19,fontWeight:a?700:500,fontFamily:"'Outfit',sans-serif"}),card:{background:D?"#1a1d24":"#fff",borderRadius:12,overflow:"hidden",boxShadow:D?"0 1px 6px rgba(0,0,0,.2)":"0 1px 6px rgba(0,0,0,.05)"},txt:{color:D?"#e0e0e0":"#1a1a2e"},sub:{color:D?"#999":"#777"},bg2:D?"#222630":"#F3F4F6",bdr:D?"#2a2d34":"#eee",inp:{background:D?"#222630":"#fff",color:D?"#e0e0e0":"#333",border:`1px solid ${D?"#333":"#ddd"}`}};
 
   /* ═══ PLAN TAB ═══ */
   const Plan=()=><div>
     <div style={{background:ct.g,padding:"16px 14px 10px",color:"#fff"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <div style={{fontSize:9,fontWeight:600,opacity:.7,letterSpacing:".12em",textTransform:"uppercase"}}>🧳 Aslan's Travel Guide</div>
-        <button onClick={()=>setDark(p=>!p)} style={{background:"rgba(255,255,255,.2)",border:"none",borderRadius:14,padding:"3px 10px",color:"#fff",fontSize:11,cursor:"pointer"}}>{D?"☀️ Light":"🌙 Dark"}</button>
+        <div style={{fontSize:19,fontWeight:600,opacity:.7,letterSpacing:".12em",textTransform:"uppercase"}}>🧳 Aslan's Travel Guide</div>
+        <button onClick={()=>setDark(p=>!p)} style={{background:"rgba(255,255,255,.2)",border:"none",borderRadius:14,padding:"3px 10px",color:"#fff",fontSize:22,cursor:"pointer"}}>{D?"☀️ Light":"🌙 Dark"}</button>
       </div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:3}}>
-        <h1 style={{margin:0,fontSize:16,fontWeight:900}}>{ct.f} {day.title}</h1>
+        <h1 style={{margin:0,fontSize:22,fontWeight:900}}>{ct.f} {day.title}</h1>
         <div style={{background:"rgba(255,255,255,.18)",borderRadius:8,padding:"3px 8px",textAlign:"center"}}>
-          <div style={{fontSize:9,fontWeight:600}}>{day.label}</div>
-          <div style={{fontSize:12,fontWeight:800}}>{day.date}</div>
+          <div style={{fontSize:19,fontWeight:600}}>{day.label}</div>
+          <div style={{fontSize:17,fontWeight:800}}>{day.date}</div>
         </div>
       </div>
       {/* budget + timezone bar */}
       <div style={{display:"flex",gap:8,marginTop:8}}>
-        <div style={{background:"rgba(255,255,255,.15)",borderRadius:8,padding:"4px 10px",fontSize:10}}>💰 Bugün: ~₺{Math.round(dayBudget)}</div>
-        <div style={{background:"rgba(255,255,255,.15)",borderRadius:8,padding:"4px 10px",fontSize:10}}>🌍 Toplam: ~₺{Math.round(tripBudget)}</div>
-        <div style={{background:"rgba(255,255,255,.15)",borderRadius:8,padding:"4px 10px",fontSize:10}}>🕐 {ct.n} UTC+{ct.tz}</div>
+        <div style={{background:"rgba(255,255,255,.15)",borderRadius:8,padding:"4px 10px",fontSize:15}}>💰 Bugün: ~₺{Math.round(dayBudget)}</div>
+        <div style={{background:"rgba(255,255,255,.15)",borderRadius:8,padding:"4px 10px",fontSize:15}}>🌍 Toplam: ~₺{Math.round(tripBudget)}</div>
+        <div style={{background:"rgba(255,255,255,.15)",borderRadius:8,padding:"4px 10px",fontSize:15}}>🕐 {ct.n} UTC+{ct.tz}</div>
       </div>
     </div>
     {/* day pills */}
     <div style={{display:"flex",gap:3,padding:"8px 10px",overflowX:"auto",background:"#fff",borderBottom:"1px solid #eee"}}>
-      {days.map((d,i)=>{const c=CITY[d.city];const a=i===activeDay;return <button key={d.id} onClick={()=>{setActiveDay(i);setExpSpot(null);setEditSpot(null)}} style={{flexShrink:0,padding:"3px 10px",borderRadius:16,border:a?`2px solid ${c.c}`:"1px solid #e0e0e0",background:a?c.c:"#fff",color:a?"#fff":"#999",fontSize:10,fontWeight:a?800:500,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"'Outfit',sans-serif"}}>{c.f} {d.date.split(" ")[0]}</button>})}
+      {days.map((d,i)=>{const c=CITY[d.city];const a=i===activeDay;return <button key={d.id} onClick={()=>{setActiveDay(i);setExpSpot(null);setEditSpot(null)}} style={{flexShrink:0,padding:"3px 10px",borderRadius:16,border:a?`2px solid ${c.c}`:"1px solid #e0e0e0",background:a?c.c:"#fff",color:a?"#fff":"#999",fontSize:15,fontWeight:a?800:500,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"'Outfit',sans-serif"}}>{c.f} {d.date.split(" ")[0]}</button>})}
     </div>
     {/* spots */}
     <div style={{padding:"8px 10px",display:"flex",flexDirection:"column",gap:6}}>
@@ -216,53 +216,53 @@ export default function App(){
           <div style={{flex:1,...css.card,border:isE?`1px solid ${cat.c}30`:"1px solid transparent"}}>
             <div style={{position:"relative",height:isE?160:100,overflow:"hidden",cursor:"pointer"}} onClick={()=>{setExpSpot(isE?null:sp.id);setEditSpot(null)}}>
               <img src={sp.img} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-              <div style={{position:"absolute",top:5,left:5,background:"rgba(0,0,0,.6)",color:"#fff",padding:"2px 7px",borderRadius:12,fontSize:9,fontWeight:700,fontFamily:"monospace"}}>{fm(sp.startMin)}–{fm(sp.startMin+sp.durMin)}</div>
-              <div style={{position:"absolute",top:5,right:5,background:cat.c,color:"#fff",padding:"1px 6px",borderRadius:12,fontSize:8,fontWeight:700}}>{cat.i} {cat.l}</div>
-              {sp.famous&&<div style={{position:"absolute",bottom:5,left:5,background:"rgba(0,0,0,.5)",color:"#FFD54F",padding:"1px 7px",borderRadius:12,fontSize:8,fontWeight:600,maxWidth:"75%",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>⭐ {sp.famous}</div>}
-              <div style={{position:"absolute",bottom:5,right:5,background:"rgba(255,255,255,.9)",padding:"1px 6px",borderRadius:8,fontSize:8,fontWeight:700}}>⏱{dl(sp.durMin)}</div>
+              <div style={{position:"absolute",top:5,left:5,background:"rgba(0,0,0,.6)",color:"#fff",padding:"2px 7px",borderRadius:12,fontSize:19,fontWeight:700,fontFamily:"monospace"}}>{fm(sp.startMin)}–{fm(sp.startMin+sp.durMin)}</div>
+              <div style={{position:"absolute",top:5,right:5,background:cat.c,color:"#fff",padding:"1px 6px",borderRadius:12,fontSize:24,fontWeight:700}}>{cat.i} {cat.l}</div>
+              {sp.famous&&<div style={{position:"absolute",bottom:5,left:5,background:"rgba(0,0,0,.5)",color:"#FFD54F",padding:"1px 7px",borderRadius:12,fontSize:24,fontWeight:600,maxWidth:"75%",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>⭐ {sp.famous}</div>}
+              <div style={{position:"absolute",bottom:5,right:5,background:"rgba(255,255,255,.9)",padding:"1px 6px",borderRadius:8,fontSize:24,fontWeight:700}}>⏱{dl(sp.durMin)}</div>
             </div>
             <div style={{padding:"6px 10px"}}>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                <h3 style={{margin:0,fontSize:13,fontWeight:800,color:"#1a1a2e"}}>{sp.name}</h3>
+                <h3 style={{margin:0,fontSize:24,fontWeight:800,color:"#1a1a2e"}}>{sp.name}</h3>
                 <div style={{display:"flex",gap:3,alignItems:"center"}}>
-                  <span style={{fontSize:9,color:"#4CAF50",fontWeight:700}}>~₺{toTRY(sp.cost||0,sp.costCur)}</span>
-                  <span onClick={()=>{setExpSpot(isE?null:sp.id);setEditSpot(null)}} style={{cursor:"pointer",fontSize:9,color:"#ccc",transform:isE?"rotate(180deg)":"none",transition:".2s"}}>▼</span>
+                  <span style={{fontSize:19,color:"#4CAF50",fontWeight:700}}>~₺{toTRY(sp.cost||0,sp.costCur)}</span>
+                  <span onClick={()=>{setExpSpot(isE?null:sp.id);setEditSpot(null)}} style={{cursor:"pointer",fontSize:19,color:"#ccc",transform:isE?"rotate(180deg)":"none",transition:".2s"}}>▼</span>
                 </div>
               </div>
-              <p style={{margin:"3px 0 0",fontSize:11,color:"#777",lineHeight:1.4}}>{sp.desc}</p>
+              <p style={{margin:"3px 0 0",fontSize:22,color:"#777",lineHeight:1.4}}>{sp.desc}</p>
               {/* transport hint */}
-              {sp.transport&&sp.transport!=="—"&&<div style={{marginTop:4,fontSize:10,color:"#1565C0",fontWeight:600}}>🚇 {sp.transport}</div>}
+              {sp.transport&&sp.transport!=="—"&&<div style={{marginTop:4,fontSize:15,color:"#1565C0",fontWeight:600}}>🚇 {sp.transport}</div>}
 
               {isE&&<>
                 <div style={{marginTop:6,padding:"6px 8px",background:cat.b,borderRadius:8,borderLeft:`3px solid ${cat.c}`}}>
-                  <div style={{fontSize:9,fontWeight:700,color:cat.c}}>💡 İPUCU</div>
-                  <p style={{margin:"2px 0 0",fontSize:10,color:"#5D4037",lineHeight:1.35}}>{sp.tips}</p>
+                  <div style={{fontSize:19,fontWeight:700,color:cat.c}}>💡 İPUCU</div>
+                  <p style={{margin:"2px 0 0",fontSize:15,color:"#5D4037",lineHeight:1.35}}>{sp.tips}</p>
                 </div>
                 {/* cost detail */}
-                <div style={{marginTop:6,fontSize:10,color:"#555"}}>💰 Tahmini: {sp.cost} {sp.costCur} ≈ ₺{toTRY(sp.cost||0,sp.costCur)}</div>
+                <div style={{marginTop:6,fontSize:15,color:"#555"}}>💰 Tahmini: {sp.cost} {sp.costCur} ≈ ₺{toTRY(sp.cost||0,sp.costCur)}</div>
                 {/* journal */}
                 <div style={{marginTop:6,display:"flex",gap:4,alignItems:"center",flexWrap:"wrap"}}>
-                  <button onClick={()=>setVisited(p=>({...p,[sp.id]:!p[sp.id]}))} style={{padding:"4px 10px",borderRadius:14,border:"none",background:isV?"#4CAF50":"#E8F5E9",color:isV?"#fff":"#4CAF50",fontSize:10,fontWeight:700,cursor:"pointer"}}>{isV?"✅ Gezdim":"Gezdim olarak işaretle"}</button>
-                  {[1,2,3,4,5].map(s=><span key={s} onClick={()=>setRatings(p=>({...p,[sp.id]:s}))} style={{cursor:"pointer",fontSize:14,opacity:(ratings[sp.id]||0)>=s?1:.25}}>⭐</span>)}
+                  <button onClick={()=>setVisited(p=>({...p,[sp.id]:!p[sp.id]}))} style={{padding:"4px 10px",borderRadius:14,border:"none",background:isV?"#4CAF50":"#E8F5E9",color:isV?"#fff":"#4CAF50",fontSize:15,fontWeight:700,cursor:"pointer"}}>{isV?"✅ Gezdim":"Gezdim olarak işaretle"}</button>
+                  {[1,2,3,4,5].map(s=><span key={s} onClick={()=>setRatings(p=>({...p,[sp.id]:s}))} style={{cursor:"pointer",fontSize:19,opacity:(ratings[sp.id]||0)>=s?1:.25}}>⭐</span>)}
                 </div>
-                {isV&&<input placeholder="Not bırak..." value={notes[sp.id]||""} onChange={e=>setNotes(p=>({...p,[sp.id]:e.target.value}))} style={{marginTop:4,width:"100%",padding:"6px 8px",borderRadius:8,border:"1px solid #ddd",fontSize:10,boxSizing:"border-box"}}/>}
+                {isV&&<input placeholder="Not bırak..." value={notes[sp.id]||""} onChange={e=>setNotes(p=>({...p,[sp.id]:e.target.value}))} style={{marginTop:4,width:"100%",padding:"6px 8px",borderRadius:8,border:"1px solid #ddd",fontSize:15,boxSizing:"border-box"}}/>}
                 {/* actions */}
                 <div style={{display:"flex",flexWrap:"wrap",gap:4,marginTop:6}}>
-                  <a href={`https://www.google.com/maps/search/?api=1&query=${sp.lat},${sp.lng}`} target="_blank" rel="noopener noreferrer" style={{padding:"4px 8px",background:cat.c,color:"#fff",borderRadius:14,fontSize:9,fontWeight:700,textDecoration:"none"}}>📍 Harita</a>
-                  <button onClick={()=>setEditSpot(isEd?null:sp.id)} style={{padding:"4px 8px",background:isEd?"#333":"#f0f0f0",color:isEd?"#fff":"#333",borderRadius:14,border:"none",fontSize:9,fontWeight:700,cursor:"pointer"}}>✏️</button>
-                  <button onClick={()=>movSpot(sp.id,-1)} style={{padding:"4px 6px",background:"#f0f0f0",borderRadius:14,border:"none",fontSize:9,cursor:"pointer"}}>⬆️</button>
-                  <button onClick={()=>movSpot(sp.id,1)} style={{padding:"4px 6px",background:"#f0f0f0",borderRadius:14,border:"none",fontSize:9,cursor:"pointer"}}>⬇️</button>
-                  <button onClick={()=>delSpot(sp.id)} style={{padding:"4px 8px",background:"#FFEBEE",color:"#C62828",borderRadius:14,border:"none",fontSize:9,fontWeight:700,cursor:"pointer"}}>🗑️</button>
+                  <a href={`https://www.google.com/maps/search/?api=1&query=${sp.lat},${sp.lng}`} target="_blank" rel="noopener noreferrer" style={{padding:"4px 8px",background:cat.c,color:"#fff",borderRadius:14,fontSize:19,fontWeight:700,textDecoration:"none"}}>📍 Harita</a>
+                  <button onClick={()=>setEditSpot(isEd?null:sp.id)} style={{padding:"4px 8px",background:isEd?"#333":"#f0f0f0",color:isEd?"#fff":"#333",borderRadius:14,border:"none",fontSize:19,fontWeight:700,cursor:"pointer"}}>✏️</button>
+                  <button onClick={()=>movSpot(sp.id,-1)} style={{padding:"4px 6px",background:"#f0f0f0",borderRadius:14,border:"none",fontSize:19,cursor:"pointer"}}>⬆️</button>
+                  <button onClick={()=>movSpot(sp.id,1)} style={{padding:"4px 6px",background:"#f0f0f0",borderRadius:14,border:"none",fontSize:19,cursor:"pointer"}}>⬇️</button>
+                  <button onClick={()=>delSpot(sp.id)} style={{padding:"4px 8px",background:"#FFEBEE",color:"#C62828",borderRadius:14,border:"none",fontSize:19,fontWeight:700,cursor:"pointer"}}>🗑️</button>
                 </div>
-                {isEd&&<div style={{marginTop:6,padding:8,background:"#F3F4F6",borderRadius:8}}>
-                  <div style={{fontSize:9,fontWeight:700,marginBottom:4}}>⏰ Süre</div>
+                {isEd&&<div style={{marginTop:6,padding:14,background:"#F3F4F6",borderRadius:8}}>
+                  <div style={{fontSize:19,fontWeight:700,marginBottom:4}}>⏰ Süre</div>
                   <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>
-                    {[30,45,60,90,120,150,180,240,360].map(d=><button key={d} onClick={()=>{updSpot(sp.id,{durMin:d});setEditSpot(null)}} style={{padding:"3px 8px",background:sp.durMin===d?cat.c:"#fff",color:sp.durMin===d?"#fff":"#333",border:`1px solid ${sp.durMin===d?cat.c:"#ddd"}`,borderRadius:12,fontSize:9,fontWeight:600,cursor:"pointer"}}>{dl(d)}</button>)}
+                    {[30,45,60,90,120,150,180,240,360].map(d=><button key={d} onClick={()=>{updSpot(sp.id,{durMin:d});setEditSpot(null)}} style={{padding:"3px 8px",background:sp.durMin===d?cat.c:"#fff",color:sp.durMin===d?"#fff":"#333",border:`1px solid ${sp.durMin===d?cat.c:"#ddd"}`,borderRadius:12,fontSize:19,fontWeight:600,cursor:"pointer"}}>{dl(d)}</button>)}
                   </div>
-                  <div style={{fontSize:9,fontWeight:700,marginTop:6,marginBottom:3}}>🕐 Başlangıç</div>
-                  <input type="time" value={fm(sp.startMin)} onChange={e=>{const[h,m]=e.target.value.split(":").map(Number);updSpot(sp.id,{startMin:h*60+m});setEditSpot(null)}} style={{padding:"3px 6px",borderRadius:6,border:"1px solid #ddd",fontSize:11,fontFamily:"monospace"}}/>
-                  <div style={{fontSize:9,fontWeight:700,marginTop:6,marginBottom:3}}>💰 Maliyet ({ct.cur})</div>
-                  <input type="number" value={sp.cost||0} onChange={e=>updSpot(sp.id,{cost:+e.target.value})} style={{padding:"3px 6px",borderRadius:6,border:"1px solid #ddd",fontSize:11,width:80}}/>
+                  <div style={{fontSize:19,fontWeight:700,marginTop:6,marginBottom:3}}>🕐 Başlangıç</div>
+                  <input type="time" value={fm(sp.startMin)} onChange={e=>{const[h,m]=e.target.value.split(":").map(Number);updSpot(sp.id,{startMin:h*60+m});setEditSpot(null)}} style={{padding:"3px 6px",borderRadius:6,border:"1px solid #ddd",fontSize:22,fontFamily:"monospace"}}/>
+                  <div style={{fontSize:19,fontWeight:700,marginTop:6,marginBottom:3}}>💰 Maliyet ({ct.cur})</div>
+                  <input type="number" value={sp.cost||0} onChange={e=>updSpot(sp.id,{cost:+e.target.value})} style={{padding:"3px 6px",borderRadius:6,border:"1px solid #ddd",fontSize:22,width:80}}/>
                 </div>}
               </>}
             </div>
@@ -277,10 +277,10 @@ export default function App(){
   const Discover=()=> {
     return <div style={{padding:14,minHeight:"calc(100vh - 64px)"}}>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-      <h2 style={{margin:0,fontSize:16,fontWeight:900,color:css.txt.color}}>🧭 Keşfet</h2>
+      <h2 style={{margin:0,fontSize:22,fontWeight:900,color:css.txt.color}}>🧭 Keşfet</h2>
       <div style={{display:"flex",gap:4}}>
         {[{k:"swipe",l:"Kartlar"},{k:"disliked",l:`Geçilenler (${disliked.length})`}].map(v=> (
-          <button key={v.k} onClick={()=>setDiscView(v.k)} style={{padding:"3px 8px",borderRadius:12,border:`1px solid ${discView===v.k?(D?"#64B5F6":"#1565C0"):css.bdr}`,background:discView===v.k?(D?"#1565C0":"#1565C0"):(D?"#1a1d24":"#fff"),color:discView===v.k?"#fff":css.sub.color,fontSize:9,fontWeight:discView===v.k?700:500,cursor:"pointer"}}>{v.l}</button>
+          <button key={v.k} onClick={()=>setDiscView(v.k)} style={{padding:"3px 8px",borderRadius:12,border:`1px solid ${discView===v.k?(D?"#64B5F6":"#1565C0"):css.bdr}`,background:discView===v.k?(D?"#1565C0":"#1565C0"):(D?"#1a1d24":"#fff"),color:discView===v.k?"#fff":css.sub.color,fontSize:19,fontWeight:discView===v.k?700:500,cursor:"pointer"}}>{v.l}</button>
         ))}
       </div>
     </div>
@@ -288,37 +288,37 @@ export default function App(){
     {/* City filter */}
     <div style={{display:"flex",gap:3,overflowX:"auto",marginBottom:6,paddingBottom:2}}>
       {cityKeys.map(k=> (
-        <button key={k} onClick={()=>setDiscCity(k)} style={{flexShrink:0,padding:"3px 10px",borderRadius:14,border:discCity===k?`2px solid ${k==="all"?(D?"#64B5F6":"#1565C0"):(CITY[k]?.c||"#999")}`:`1px solid ${css.bdr}`,background:discCity===k?(k==="all"?(D?"#1565C0":"#1565C0"):(CITY[k]?.c||"#999")):(D?"#1a1d24":"#fff"),color:discCity===k?"#fff":css.sub.color,fontSize:10,fontWeight:discCity===k?700:500,cursor:"pointer",whiteSpace:"nowrap"}}>{k==="all"?"🌍 Tümü":`${CITY[k]?.f||""} ${CITY[k]?.n||k}`}</button>
+        <button key={k} onClick={()=>setDiscCity(k)} style={{flexShrink:0,padding:"3px 10px",borderRadius:14,border:discCity===k?`2px solid ${k==="all"?(D?"#64B5F6":"#1565C0"):(CITY[k]?.c||"#999")}`:`1px solid ${css.bdr}`,background:discCity===k?(k==="all"?(D?"#1565C0":"#1565C0"):(CITY[k]?.c||"#999")):(D?"#1a1d24":"#fff"),color:discCity===k?"#fff":css.sub.color,fontSize:15,fontWeight:discCity===k?700:500,cursor:"pointer",whiteSpace:"nowrap"}}>{k==="all"?"🌍 Tümü":`${CITY[k]?.f||""} ${CITY[k]?.n||k}`}</button>
       ))}
     </div>
 
     {/* Category filter */}
     <div style={{display:"flex",gap:3,overflowX:"auto",marginBottom:10,paddingBottom:2}}>
       {catKeys.map(k=> (
-        <button key={k} onClick={()=>setDiscCat(k)} style={{flexShrink:0,padding:"3px 8px",borderRadius:14,border:discCat===k?`2px solid ${k==="all"?(D?"#64B5F6":"#1565C0"):(CAT[k]?.c||"#999")}`:`1px solid ${css.bdr}`,background:discCat===k?(k==="all"?(D?"#1565C0":"#1565C0"):(CAT[k]?.c||"#999")):(D?"#1a1d24":"#fff"),color:discCat===k?"#fff":css.sub.color,fontSize:9,fontWeight:discCat===k?700:500,cursor:"pointer",whiteSpace:"nowrap"}}>{k==="all"?"Tümü":`${CAT[k]?.i||""} ${CAT[k]?.l||k}`}</button>
+        <button key={k} onClick={()=>setDiscCat(k)} style={{flexShrink:0,padding:"3px 8px",borderRadius:14,border:discCat===k?`2px solid ${k==="all"?(D?"#64B5F6":"#1565C0"):(CAT[k]?.c||"#999")}`:`1px solid ${css.bdr}`,background:discCat===k?(k==="all"?(D?"#1565C0":"#1565C0"):(CAT[k]?.c||"#999")):(D?"#1a1d24":"#fff"),color:discCat===k?"#fff":css.sub.color,fontSize:19,fontWeight:discCat===k?700:500,cursor:"pointer",whiteSpace:"nowrap"}}>{k==="all"?"Tümü":`${CAT[k]?.i||""} ${CAT[k]?.l||k}`}</button>
       ))}
     </div>
 
     {discView==="swipe" && (<div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
-      <p style={{margin:"0 0 8px",fontSize:11,color:css.sub.color}}>Sağa = beğen ❤️ · Sola = geç 👎</p>
+      <p style={{margin:"0 0 8px",fontSize:22,color:css.sub.color}}>Sağa = beğen ❤️ · Sola = geç 👎</p>
       {curDisc ? (
         <div onTouchStart={e=>touchX.current=e.touches[0].clientX} onTouchEnd={e=>{if(!touchX.current)return;const dd=e.changedTouches[0].clientX-touchX.current;if(dd>50)swLike();else if(dd<-50)swPass();touchX.current=null}} style={{width:"100%",maxWidth:340,...css.card,borderRadius:18,transition:"transform .2s,opacity .2s",transform:swDir==="r"?"translateX(100%) rotate(6deg)":swDir==="l"?"translateX(-100%) rotate(-6deg)":"none",opacity:swDir?0.4:1}}>
-          <div style={{position:"relative",height:200}}>
+          <div style={{position:"relative",height:240}}>
             <img src={curDisc.img} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
             <div style={{position:"absolute",bottom:0,left:0,right:0,background:"linear-gradient(transparent,rgba(0,0,0,.7))",padding:"30px 14px 12px"}}>
               <div style={{display:"flex",alignItems:"center",gap:5}}>
-                <span style={{fontSize:18,fontWeight:900,color:"#fff"}}>{curDisc.name}</span>
-                <span style={{background:CAT[curDisc.category]?.c||"#666",color:"#fff",padding:"1px 7px",borderRadius:10,fontSize:8,fontWeight:700}}>{CAT[curDisc.category]?.i} {CAT[curDisc.category]?.l}</span>
+                <span style={{fontSize:24,fontWeight:900,color:"#fff"}}>{curDisc.name}</span>
+                <span style={{background:CAT[curDisc.category]?.c||"#666",color:"#fff",padding:"1px 7px",borderRadius:10,fontSize:24,fontWeight:700}}>{CAT[curDisc.category]?.i} {CAT[curDisc.category]?.l}</span>
               </div>
-              <div style={{color:"#FFD54F",fontSize:10,fontWeight:600,marginTop:1}}>{CITY[curDisc.city]?.f} {CITY[curDisc.city]?.n} · 💰 {curDisc.cost} {curDisc.costCur} ≈ ₺{toTRY(curDisc.cost,curDisc.costCur)}</div>
+              <div style={{color:"#FFD54F",fontSize:15,fontWeight:600,marginTop:1}}>{CITY[curDisc.city]?.f} {CITY[curDisc.city]?.n} · 💰 {curDisc.cost} {curDisc.costCur} ≈ ₺{toTRY(curDisc.cost,curDisc.costCur)}</div>
             </div>
           </div>
           <div style={{padding:"12px 14px"}}>
-            <p style={{margin:"0 0 6px",fontSize:12,color:css.sub.color,lineHeight:1.45}}>{curDisc.desc}</p>
-            {curDisc.famous && <div style={{padding:"6px 10px",background:D?"#332B00":"#FFF8E1",borderRadius:8,marginBottom:10}}><span style={{fontSize:10,fontWeight:700,color:"#FF8F00"}}>⭐ </span><span style={{fontSize:10,color:D?"#FFD54F":"#5D4037"}}>{curDisc.famous}</span></div>}
+            <p style={{margin:"0 0 6px",fontSize:17,color:css.sub.color,lineHeight:1.45}}>{curDisc.desc}</p>
+            {curDisc.famous && <div style={{padding:"6px 10px",background:D?"#332B00":"#FFF8E1",borderRadius:8,marginBottom:10}}><span style={{fontSize:15,fontWeight:700,color:"#FF8F00"}}>⭐ </span><span style={{fontSize:15,color:D?"#FFD54F":"#5D4037"}}>{curDisc.famous}</span></div>}
             <div style={{display:"flex",gap:8,justifyContent:"center"}}>
               <button onClick={swPass} style={{width:50,height:50,borderRadius:"50%",border:"2px solid #EF5350",background:D?"#1a1d24":"#fff",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>👎</button>
-              <a href={`https://www.google.com/maps/search/?api=1&query=${curDisc.lat},${curDisc.lng}`} target="_blank" rel="noopener noreferrer" style={{width:40,height:40,borderRadius:"50%",border:"2px solid #42A5F5",background:D?"#1a1d24":"#fff",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",marginTop:5}}>📍</a>
+              <a href={`https://www.google.com/maps/search/?api=1&query=${curDisc.lat},${curDisc.lng}`} target="_blank" rel="noopener noreferrer" style={{width:40,height:40,borderRadius:"50%",border:"2px solid #42A5F5",background:D?"#1a1d24":"#fff",fontSize:19,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",marginTop:5}}>📍</a>
               <button onClick={swLike} style={{width:50,height:50,borderRadius:"50%",border:"2px solid #66BB6A",background:D?"#1a1d24":"#fff",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>❤️</button>
             </div>
           </div>
@@ -326,23 +326,23 @@ export default function App(){
       ) : (
         <div style={{textAlign:"center",color:css.sub.color,marginTop:50}}>
           <div style={{fontSize:40}}>🎉</div>
-          <div style={{fontSize:13,fontWeight:600,marginTop:6}}>Bu filtrede başka öneri yok!</div>
-          <p style={{fontSize:11}}>Filtreleri değiştir veya AI Rehber'den yeni öneriler iste.</p>
+          <div style={{fontSize:24,fontWeight:600,marginTop:6}}>Bu filtrede başka öneri yok!</div>
+          <p style={{fontSize:22}}>Filtreleri değiştir veya AI Rehber'den yeni öneriler iste.</p>
         </div>
       )}
-      <div style={{marginTop:8,fontSize:10,color:css.sub.color}}>{filteredDisc.length} öneri kaldı (toplam {disc.length})</div>
+      <div style={{marginTop:8,fontSize:15,color:css.sub.color}}>{filteredDisc.length} öneri kaldı (toplam {disc.length})</div>
     </div>)}
 
     {/* Disliked / Passed items */}
     {discView==="disliked" && (
       <div>
         {disliked.length > 0 && (
-          <button onClick={restoreAll} style={{width:"100%",padding:"8px",borderRadius:10,border:"none",background:D?"#1565C0":"#E3F2FD",color:D?"#fff":"#1565C0",fontSize:11,fontWeight:700,cursor:"pointer",marginBottom:8}}>♻️ Tümünü Geri Yükle ({disliked.length})</button>
+          <button onClick={restoreAll} style={{width:"100%",padding:"8px",borderRadius:10,border:"none",background:D?"#1565C0":"#E3F2FD",color:D?"#fff":"#1565C0",fontSize:22,fontWeight:700,cursor:"pointer",marginBottom:8}}>♻️ Tümünü Geri Yükle ({disliked.length})</button>
         )}
         {disliked.length === 0 ? (
           <div style={{textAlign:"center",color:css.sub.color,marginTop:40}}>
-            <div style={{fontSize:36}}>✨</div>
-            <div style={{fontSize:12,fontWeight:600,marginTop:6}}>Geçilen yer yok</div>
+            <div style={{fontSize:42}}>✨</div>
+            <div style={{fontSize:17,fontWeight:600,marginTop:6}}>Geçilen yer yok</div>
           </div>
         ) : (
           <div style={{display:"flex",flexDirection:"column",gap:6}}>
@@ -353,14 +353,14 @@ export default function App(){
                 <div style={{flex:1,padding:"6px 8px",display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
                   <div>
                     <div style={{display:"flex",alignItems:"center",gap:3}}>
-                      <span style={{fontSize:12,fontWeight:800,color:css.txt.color}}>{p.name}</span>
+                      <span style={{fontSize:17,fontWeight:800,color:css.txt.color}}>{p.name}</span>
                       <span style={{fontSize:7,background:cat.c,color:"#fff",padding:"0 5px",borderRadius:6,fontWeight:700}}>{cat.i}</span>
                     </div>
-                    <div style={{fontSize:9,color:css.sub.color}}>{CITY[p.city]?.f} {CITY[p.city]?.n} · {p.famous}</div>
+                    <div style={{fontSize:19,color:css.sub.color}}>{CITY[p.city]?.f} {CITY[p.city]?.n} · {p.famous}</div>
                   </div>
                   <div style={{display:"flex",gap:3}}>
-                    <button onClick={()=>restoreDisliked(p)} style={{flex:1,padding:"4px 8px",background:D?"#1B5E20":"#E8F5E9",color:D?"#81C784":"#2E7D32",border:"none",borderRadius:8,fontSize:10,fontWeight:700,cursor:"pointer"}}>♻️ Geri Al</button>
-                    <button onClick={()=>{setDisliked(prev=>prev.filter(x=>x.id!==p.id));setLiked(prev=>[...prev,p]);show("❤️ Beğenildi")}} style={{padding:"4px 8px",background:D?"#B71C1C":"#FCE4EC",color:D?"#EF9A9A":"#C62828",border:"none",borderRadius:8,fontSize:10,fontWeight:700,cursor:"pointer"}}>❤️ Beğen</button>
+                    <button onClick={()=>restoreDisliked(p)} style={{flex:1,padding:"4px 8px",background:D?"#1B5E20":"#E8F5E9",color:D?"#81C784":"#2E7D32",border:"none",borderRadius:8,fontSize:15,fontWeight:700,cursor:"pointer"}}>♻️ Geri Al</button>
+                    <button onClick={()=>{setDisliked(prev=>prev.filter(x=>x.id!==p.id));setLiked(prev=>[...prev,p]);show("❤️ Beğenildi")}} style={{padding:"4px 8px",background:D?"#B71C1C":"#FCE4EC",color:D?"#EF9A9A":"#C62828",border:"none",borderRadius:8,fontSize:15,fontWeight:700,cursor:"pointer"}}>❤️ Beğen</button>
                   </div>
                 </div>
               </div>;
@@ -374,21 +374,21 @@ export default function App(){
 
   /* ═══ LIKED ═══ */
   const Liked=()=><div style={{padding:14}}>
-    <h2 style={{margin:"0 0 2px",fontSize:16,fontWeight:900,color:"#1a1a2e"}}>❤️ Beğendiklerin</h2>
-    <p style={{margin:"0 0 10px",fontSize:11,color:"#999"}}>Güne ekleyerek programa dahil et</p>
-    {liked.length===0?<div style={{textAlign:"center",color:"#ddd",marginTop:50}}><div style={{fontSize:40}}>🫥</div><div style={{fontSize:12,marginTop:6}}>Keşfet'te sağa kaydır</div></div>:
+    <h2 style={{margin:"0 0 2px",fontSize:22,fontWeight:900,color:"#1a1a2e"}}>❤️ Beğendiklerin</h2>
+    <p style={{margin:"0 0 10px",fontSize:22,color:"#999"}}>Güne ekleyerek programa dahil et</p>
+    {liked.length===0?<div style={{textAlign:"center",color:"#ddd",marginTop:50}}><div style={{fontSize:40}}>🫥</div><div style={{fontSize:17,marginTop:6}}>Keşfet'te sağa kaydır</div></div>:
     <div style={{display:"flex",flexDirection:"column",gap:6}}>
       {liked.map(p=>{const cat=CAT[p.category]||CAT.explore;return <div key={p.id} style={{...css.card,display:"flex",overflow:"hidden"}}>
         <img src={p.img} alt="" style={{width:80,height:80,objectFit:"cover",flexShrink:0}}/>
         <div style={{flex:1,padding:"6px 8px",display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
-          <div><div style={{display:"flex",alignItems:"center",gap:3}}><span style={{fontSize:12,fontWeight:800}}>{p.name}</span><span style={{fontSize:7,background:cat.c,color:"#fff",padding:"0 5px",borderRadius:6,fontWeight:700}}>{cat.i}</span></div>
-          <div style={{fontSize:9,color:"#999"}}>{CITY[p.city]?.f} {CITY[p.city]?.n} · ₺{toTRY(p.cost,p.costCur)}</div></div>
+          <div><div style={{display:"flex",alignItems:"center",gap:3}}><span style={{fontSize:17,fontWeight:800}}>{p.name}</span><span style={{fontSize:7,background:cat.c,color:"#fff",padding:"0 5px",borderRadius:6,fontWeight:700}}>{cat.i}</span></div>
+          <div style={{fontSize:19,color:"#999"}}>{CITY[p.city]?.f} {CITY[p.city]?.n} · ₺{toTRY(p.cost,p.costCur)}</div></div>
           <div style={{display:"flex",gap:3}}>
-            <select onChange={e=>{if(e.target.value!=="")addToDay(p,+e.target.value);e.target.value=""}} defaultValue="" style={{padding:"3px 6px",borderRadius:8,border:"1px solid #ddd",fontSize:9,flex:1}}>
+            <select onChange={e=>{if(e.target.value!=="")addToDay(p,+e.target.value);e.target.value=""}} defaultValue="" style={{padding:"3px 6px",borderRadius:8,border:"1px solid #ddd",fontSize:19,flex:1}}>
               <option value="" disabled>➕ Güne ekle</option>
               {days.map((d,i)=><option key={d.id} value={i}>{d.date}</option>)}
             </select>
-            <button onClick={()=>setLiked(prev=>prev.filter(x=>x.id!==p.id))} style={{padding:"3px 6px",background:"#FFEBEE",color:"#C62828",border:"none",borderRadius:8,fontSize:9,cursor:"pointer"}}>✕</button>
+            <button onClick={()=>setLiked(prev=>prev.filter(x=>x.id!==p.id))} style={{padding:"3px 6px",background:"#FFEBEE",color:"#C62828",border:"none",borderRadius:8,fontSize:19,cursor:"pointer"}}>✕</button>
           </div>
         </div>
       </div>})}
@@ -399,20 +399,20 @@ export default function App(){
   const infoTabs=[{k:"flights",i:"✈️",l:"Uçuşlar"},{k:"hotels",i:"🏨",l:"Oteller"},{k:"emergency",i:"🆘",l:"Acil"},{k:"lang",i:"🗣️",l:"Dil"},{k:"check",i:"🧳",l:"Checklist"},{k:"tz",i:"🕐",l:"Saat"}];
 
   const Info=()=><div style={{padding:14}}>
-    <h2 style={{margin:"0 0 8px",fontSize:16,fontWeight:900,color:"#1a1a2e"}}>💼 Gezi Bilgileri</h2>
+    <h2 style={{margin:"0 0 8px",fontSize:22,fontWeight:900,color:"#1a1a2e"}}>💼 Gezi Bilgileri</h2>
     <div style={{display:"flex",gap:3,overflowX:"auto",marginBottom:10}}>
-      {infoTabs.map(t=><button key={t.k} onClick={()=>setInfoSub(t.k)} style={{flexShrink:0,padding:"4px 10px",borderRadius:14,border:infoSub===t.k?"2px solid #1565C0":"1px solid #e0e0e0",background:infoSub===t.k?"#1565C0":"#fff",color:infoSub===t.k?"#fff":"#888",fontSize:10,fontWeight:infoSub===t.k?700:500,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"'Outfit',sans-serif"}}>{t.i} {t.l}</button>)}
+      {infoTabs.map(t=><button key={t.k} onClick={()=>setInfoSub(t.k)} style={{flexShrink:0,padding:"4px 10px",borderRadius:14,border:infoSub===t.k?"2px solid #1565C0":"1px solid #e0e0e0",background:infoSub===t.k?"#1565C0":"#fff",color:infoSub===t.k?"#fff":"#888",fontSize:15,fontWeight:infoSub===t.k?700:500,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"'Outfit',sans-serif"}}>{t.i} {t.l}</button>)}
     </div>
 
     {/* FLIGHTS */}
     {infoSub==="flights"&&<div style={{display:"flex",flexDirection:"column",gap:6}}>
       {flights.map(f=>{const isEd=editFlight===f.id;return <div key={f.id} style={{...css.card,padding:"10px 12px",cursor:"pointer",border:isEd?"1px solid #1565C0":"1px solid transparent"}} onClick={()=>setEditFlight(isEd?null:f.id)}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div><div style={{fontSize:9,color:"#999",fontWeight:600}}>{f.date} · {f.time}</div><div style={{fontSize:13,fontWeight:800,color:"#1a1a2e"}}>{f.from} → {f.to}</div></div>
-          <div style={{textAlign:"right"}}><div style={{fontSize:10,color:"#1565C0",fontWeight:600}}>{f.air}</div>{f.note&&<div style={{fontSize:9,color:"#FF8F00"}}>{f.note}</div>}</div>
+          <div><div style={{fontSize:19,color:"#999",fontWeight:600}}>{f.date} · {f.time}</div><div style={{fontSize:24,fontWeight:800,color:"#1a1a2e"}}>{f.from} → {f.to}</div></div>
+          <div style={{textAlign:"right"}}><div style={{fontSize:15,color:"#1565C0",fontWeight:600}}>{f.air}</div>{f.note&&<div style={{fontSize:19,color:"#FF8F00"}}>{f.note}</div>}</div>
         </div>
         {isEd&&<div style={{marginTop:8,display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}} onClick={e=>e.stopPropagation()}>
-          {[{k:"date",l:"Tarih"},{k:"time",l:"Saat"},{k:"from",l:"Nereden"},{k:"to",l:"Nereye"},{k:"air",l:"Havayolu"},{k:"note",l:"Not"}].map(({k,l})=><div key={k} style={{gridColumn:k==="note"?"1/-1":"auto"}}><div style={{fontSize:8,fontWeight:700,color:"#999"}}>{l}</div><input value={f[k]} onChange={e=>setFlights(p=>p.map(x=>x.id===f.id?{...x,[k]:e.target.value}:x))} style={{width:"100%",padding:"4px 6px",borderRadius:4,border:"1px solid #ddd",fontSize:11,boxSizing:"border-box"}}/></div>)}
+          {[{k:"date",l:"Tarih"},{k:"time",l:"Saat"},{k:"from",l:"Nereden"},{k:"to",l:"Nereye"},{k:"air",l:"Havayolu"},{k:"note",l:"Not"}].map(({k,l})=><div key={k} style={{gridColumn:k==="note"?"1/-1":"auto"}}><div style={{fontSize:24,fontWeight:700,color:"#999"}}>{l}</div><input value={f[k]} onChange={e=>setFlights(p=>p.map(x=>x.id===f.id?{...x,[k]:e.target.value}:x))} style={{width:"100%",padding:"4px 6px",borderRadius:4,border:"1px solid #ddd",fontSize:22,boxSizing:"border-box"}}/></div>)}
         </div>}
       </div>})}
     </div>}
@@ -420,33 +420,33 @@ export default function App(){
     {/* HOTELS */}
     {infoSub==="hotels"&&<div style={{display:"flex",flexDirection:"column",gap:6}}>
       {hotels.map((h,hi)=><div key={hi} style={{...css.card,padding:"10px 12px"}}>
-        <div style={{fontSize:12,fontWeight:800,color:"#1a1a2e"}}>{CITY[h.city]?.f} {CITY[h.city]?.n}</div>
+        <div style={{fontSize:17,fontWeight:800,color:"#1a1a2e"}}>{CITY[h.city]?.f} {CITY[h.city]?.n}</div>
         {[{k:"name",l:"🏨 Otel"},{k:"addr",l:"📍 Adres"},{k:"phone",l:"📞 Telefon"},{k:"checkin",l:"⬇️ Check-in"},{k:"checkout",l:"⬆️ Check-out"}].map(({k,l})=><div key={k} style={{marginTop:4}}>
-          <div style={{fontSize:8,fontWeight:700,color:"#999"}}>{l}</div>
-          <input value={h[k]} onChange={e=>setHotels(p=>p.map((x,i)=>i===hi?{...x,[k]:e.target.value}:x))} style={{width:"100%",padding:"4px 6px",borderRadius:4,border:"1px solid #ddd",fontSize:11,boxSizing:"border-box"}}/>
+          <div style={{fontSize:24,fontWeight:700,color:"#999"}}>{l}</div>
+          <input value={h[k]} onChange={e=>setHotels(p=>p.map((x,i)=>i===hi?{...x,[k]:e.target.value}:x))} style={{width:"100%",padding:"4px 6px",borderRadius:4,border:"1px solid #ddd",fontSize:22,boxSizing:"border-box"}}/>
         </div>)}
-        <a href={`https://www.google.com/maps/search/?api=1&query=${h.lat},${h.lng}`} target="_blank" rel="noopener noreferrer" style={{display:"inline-block",marginTop:6,padding:"4px 10px",background:"#1565C0",color:"#fff",borderRadius:12,fontSize:9,fontWeight:700,textDecoration:"none"}}>📍 Haritada Aç</a>
+        <a href={`https://www.google.com/maps/search/?api=1&query=${h.lat},${h.lng}`} target="_blank" rel="noopener noreferrer" style={{display:"inline-block",marginTop:6,padding:"4px 10px",background:"#1565C0",color:"#fff",borderRadius:12,fontSize:19,fontWeight:700,textDecoration:"none"}}>📍 Haritada Aç</a>
       </div>)}
     </div>}
 
     {/* EMERGENCY */}
     {infoSub==="emergency"&&<div style={{display:"flex",flexDirection:"column",gap:6}}>
       {Object.entries(CITY).map(([k,c])=><div key={k} style={{...css.card,padding:"10px 12px"}}>
-        <div style={{fontSize:13,fontWeight:800}}>{c.f} {c.n}</div>
-        <div style={{marginTop:4,fontSize:11,color:"#C62828",fontWeight:600}}>🚨 {c.emergency}</div>
-        <div style={{marginTop:2,fontSize:11,color:"#1565C0"}}>🏛️ {c.consulate}</div>
-        <div style={{marginTop:2,fontSize:10,color:"#777"}}>🔌 Priz: {c.plug} · 📱 SIM: {c.sim}</div>
+        <div style={{fontSize:24,fontWeight:800}}>{c.f} {c.n}</div>
+        <div style={{marginTop:4,fontSize:22,color:"#C62828",fontWeight:600}}>🚨 {c.emergency}</div>
+        <div style={{marginTop:2,fontSize:22,color:"#1565C0"}}>🏛️ {c.consulate}</div>
+        <div style={{marginTop:2,fontSize:15,color:"#777"}}>🔌 Priz: {c.plug} · 📱 SIM: {c.sim}</div>
       </div>)}
     </div>}
 
     {/* LANGUAGE */}
     {infoSub==="lang"&&<div>
       {Object.entries(LANG).map(([k,phrases])=><div key={k} style={{marginBottom:12}}>
-        <div style={{fontSize:13,fontWeight:800,marginBottom:6}}>{CITY[k]?.f} {CITY[k]?.n}</div>
+        <div style={{fontSize:24,fontWeight:800,marginBottom:6}}>{CITY[k]?.f} {CITY[k]?.n}</div>
         <div style={{display:"flex",flexDirection:"column",gap:3}}>
           {phrases.map((p,i)=><div key={i} style={{...css.card,padding:"8px 10px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-            <div><div style={{fontSize:11,fontWeight:700,color:"#1a1a2e"}}>{p.tr}</div><div style={{fontSize:10,color:"#999"}}>{p.local}</div></div>
-            <div style={{background:"#E8EAF6",padding:"3px 8px",borderRadius:10,fontSize:10,fontWeight:600,color:"#3F51B5"}}>🔊 {p.pron}</div>
+            <div><div style={{fontSize:22,fontWeight:700,color:"#1a1a2e"}}>{p.tr}</div><div style={{fontSize:15,color:"#999"}}>{p.local}</div></div>
+            <div style={{background:"#E8EAF6",padding:"3px 8px",borderRadius:10,fontSize:15,fontWeight:600,color:"#3F51B5"}}>🔊 {p.pron}</div>
           </div>)}
         </div>
       </div>)}
@@ -455,47 +455,47 @@ export default function App(){
     {/* CHECKLIST */}
     {infoSub==="check"&&<div>
       {Object.entries(checks).map(([group,items])=><div key={group} style={{marginBottom:12}}>
-        <div style={{fontSize:13,fontWeight:800,marginBottom:6}}>{group==="bavul"?"🧳 Bavul Listesi":"📄 Belgeler & Vize"}</div>
+        <div style={{fontSize:24,fontWeight:800,marginBottom:6}}>{group==="bavul"?"🧳 Bavul Listesi":"📄 Belgeler & Vize"}</div>
         <div style={{...css.card,padding:"8px 10px"}}>
           {items.map(it=><div key={it.id} onClick={()=>setChecks(p=>({...p,[group]:p[group].map(x=>x.id===it.id?{...x,ok:!x.ok}:x)}))} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 0",borderBottom:"1px solid #f5f5f5",cursor:"pointer"}}>
-            <div style={{width:20,height:20,borderRadius:6,border:it.ok?"none":"2px solid #ddd",background:it.ok?"#4CAF50":"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"#fff",flexShrink:0}}>{it.ok?"✓":""}</div>
-            <span style={{fontSize:11,color:it.ok?"#aaa":"#333",textDecoration:it.ok?"line-through":"none"}}>{it.t}</span>
+            <div style={{width:20,height:20,borderRadius:6,border:it.ok?"none":"2px solid #ddd",background:it.ok?"#4CAF50":"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",flexShrink:0}}>{it.ok?"✓":""}</div>
+            <span style={{fontSize:22,color:it.ok?"#aaa":"#333",textDecoration:it.ok?"line-through":"none"}}>{it.t}</span>
           </div>)}
         </div>
-        <div style={{fontSize:10,color:"#4CAF50",fontWeight:600,marginTop:4}}>✅ {items.filter(x=>x.ok).length}/{items.length} tamamlandı</div>
+        <div style={{fontSize:15,color:"#4CAF50",fontWeight:600,marginTop:4}}>✅ {items.filter(x=>x.ok).length}/{items.length} tamamlandı</div>
       </div>)}
     </div>}
 
     {/* TIMEZONE */}
     {infoSub==="tz"&&<div style={{display:"flex",flexDirection:"column",gap:6}}>
       <div style={{...css.card,padding:"12px 14px",textAlign:"center"}}>
-        <div style={{fontSize:12,fontWeight:700,color:"#999"}}>🇹🇷 Antalya (UTC+3)</div>
-        <div style={{fontSize:28,fontWeight:900,color:"#1a1a2e",fontFamily:"monospace"}}>{new Date().toLocaleTimeString("tr-TR",{timeZone:"Europe/Istanbul",hour:"2-digit",minute:"2-digit"})}</div>
+        <div style={{fontSize:17,fontWeight:700,color:"#999"}}>🇹🇷 Antalya (UTC+3)</div>
+        <div style={{fontSize:34,fontWeight:900,color:"#1a1a2e",fontFamily:"monospace"}}>{new Date().toLocaleTimeString("tr-TR",{timeZone:"Europe/Istanbul",hour:"2-digit",minute:"2-digit"})}</div>
       </div>
       {Object.entries(CITY).map(([k,c])=>{const tz=["Asia/Shanghai","Asia/Hong_Kong","Asia/Bangkok","Asia/Bangkok"][["beijing","hongkong","bangkok","kohsamui"].indexOf(k)]||"Asia/Bangkok";return <div key={k} style={{...css.card,padding:"12px 14px",textAlign:"center"}}>
-        <div style={{fontSize:12,fontWeight:700,color:"#999"}}>{c.f} {c.n} (UTC+{c.tz})</div>
-        <div style={{fontSize:28,fontWeight:900,color:c.c,fontFamily:"monospace"}}>{new Date().toLocaleTimeString("tr-TR",{timeZone:tz,hour:"2-digit",minute:"2-digit"})}</div>
-        <div style={{fontSize:10,color:"#999"}}>Antalya'dan {c.tz-3>0?"+":"" }{c.tz-3} saat</div>
+        <div style={{fontSize:17,fontWeight:700,color:"#999"}}>{c.f} {c.n} (UTC+{c.tz})</div>
+        <div style={{fontSize:34,fontWeight:900,color:c.c,fontFamily:"monospace"}}>{new Date().toLocaleTimeString("tr-TR",{timeZone:tz,hour:"2-digit",minute:"2-digit"})}</div>
+        <div style={{fontSize:15,color:"#999"}}>Antalya'dan {c.tz-3>0?"+":"" }{c.tz-3} saat</div>
       </div>})}
     </div>}
   </div>;
 
   /* ═══ AI TAB ═══ */
   const AI=()=><div style={{display:"flex",flexDirection:"column",height:"calc(100vh - 64px)"}}>
-    <div style={{padding:"14px 14px 6px"}}><h2 style={{margin:"0 0 1px",fontSize:16,fontWeight:900,color:"#1a1a2e"}}>🤖 AI Rehber</h2><p style={{margin:0,fontSize:10,color:"#999"}}>Güncel bilgi çeker, öneri verir</p></div>
+    <div style={{padding:"14px 14px 6px"}}><h2 style={{margin:"0 0 1px",fontSize:22,fontWeight:900,color:"#1a1a2e"}}>🤖 AI Rehber</h2><p style={{margin:0,fontSize:15,color:"#999"}}>Güncel bilgi çeker, öneri verir</p></div>
     <div ref={aiRef} style={{flex:1,overflowY:"auto",padding:"6px 14px",display:"flex",flexDirection:"column",gap:5}}>
       {aiMsgs.length===0&&<div style={{textAlign:"center",color:"#ccc",marginTop:24}}>
-        <div style={{fontSize:32}}>🧭</div><div style={{fontWeight:600,fontSize:11,marginTop:4}}>Merhaba Aslan!</div>
+        <div style={{fontSize:32}}>🧭</div><div style={{fontWeight:600,fontSize:22,marginTop:4}}>Merhaba Aslan!</div>
         <div style={{display:"flex",flexWrap:"wrap",gap:4,justifyContent:"center",marginTop:8}}>
-          {["Yakında ne yiyeyim?","1 saat fazla vaktim var","Gizli mekanlar?","Hava durumu?","Ne giymeliyim?","Bu bölgede yeni mekanlar?"].map(q=><button key={q} onClick={()=>setAiIn(q)} style={{padding:"4px 8px",background:"#F3F4F6",border:"1px solid #e0e0e0",borderRadius:12,fontSize:9,cursor:"pointer",color:"#666"}}>{q}</button>)}
+          {["Yakında ne yiyeyim?","1 saat fazla vaktim var","Gizli mekanlar?","Hava durumu?","Ne giymeliyim?","Bu bölgede yeni mekanlar?"].map(q=><button key={q} onClick={()=>setAiIn(q)} style={{padding:"4px 8px",background:"#F3F4F6",border:"1px solid #e0e0e0",borderRadius:12,fontSize:19,cursor:"pointer",color:"#666"}}>{q}</button>)}
         </div>
       </div>}
-      {aiMsgs.map((m,i)=><div key={i} style={{alignSelf:m.r==="user"?"flex-end":"flex-start",maxWidth:"85%",padding:"6px 10px",borderRadius:m.r==="user"?"12px 12px 3px 12px":"12px 12px 12px 3px",background:m.r==="user"?"#1565C0":"#F3F4F6",color:m.r==="user"?"#fff":"#333",fontSize:11,lineHeight:1.45,whiteSpace:"pre-wrap"}}>{m.t}</div>)}
-      {aiLoad&&<div style={{alignSelf:"flex-start",padding:"6px 10px",borderRadius:12,background:"#F3F4F6",color:"#999",fontSize:11}}>⏳ Düşünüyorum...</div>}
+      {aiMsgs.map((m,i)=><div key={i} style={{alignSelf:m.r==="user"?"flex-end":"flex-start",maxWidth:"85%",padding:"6px 10px",borderRadius:m.r==="user"?"12px 12px 3px 12px":"12px 12px 12px 3px",background:m.r==="user"?"#1565C0":"#F3F4F6",color:m.r==="user"?"#fff":"#333",fontSize:22,lineHeight:1.45,whiteSpace:"pre-wrap"}}>{m.t}</div>)}
+      {aiLoad&&<div style={{alignSelf:"flex-start",padding:"6px 10px",borderRadius:12,background:"#F3F4F6",color:"#999",fontSize:22}}>⏳ Düşünüyorum...</div>}
     </div>
     <div style={{display:"flex",gap:4,padding:"8px 12px",borderTop:"1px solid #eee",background:"#fff"}}>
-      <input value={aiIn} onChange={e=>setAiIn(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendAi()} placeholder="Soru sor..." style={{flex:1,padding:"8px 10px",borderRadius:16,border:"1px solid #ddd",fontSize:11,outline:"none"}}/>
-      <button onClick={sendAi} disabled={aiLoad||!aiIn.trim()} style={{padding:"8px 12px",borderRadius:16,border:"none",background:"#1565C0",color:"#fff",fontSize:11,fontWeight:700,cursor:"pointer",opacity:(aiLoad||!aiIn.trim())?0.5:1}}>→</button>
+      <input value={aiIn} onChange={e=>setAiIn(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendAi()} placeholder="Soru sor..." style={{flex:1,padding:"8px 10px",borderRadius:16,border:"1px solid #ddd",fontSize:22,outline:"none"}}/>
+      <button onClick={sendAi} disabled={aiLoad||!aiIn.trim()} style={{padding:"8px 12px",borderRadius:16,border:"none",background:"#1565C0",color:"#fff",fontSize:22,fontWeight:700,cursor:"pointer",opacity:(aiLoad||!aiIn.trim())?0.5:1}}>→</button>
     </div>
   </div>;
 
@@ -504,7 +504,7 @@ export default function App(){
 
   return <div style={css.app}>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-    {toast&&<div style={{position:"fixed",top:12,left:"50%",transform:"translateX(-50%)",background:D?"#fff":"#1a1a2e",color:D?"#1a1a2e":"#fff",padding:"6px 16px",borderRadius:18,fontSize:11,fontWeight:600,zIndex:999,boxShadow:"0 4px 16px rgba(0,0,0,.2)",animation:"fi .3s"}}>{toast}</div>}
+    {toast&&<div style={{position:"fixed",top:12,left:"50%",transform:"translateX(-50%)",background:D?"#fff":"#1a1a2e",color:D?"#1a1a2e":"#fff",padding:"6px 16px",borderRadius:18,fontSize:22,fontWeight:600,zIndex:999,boxShadow:"0 4px 16px rgba(0,0,0,.2)",animation:"fi .3s"}}>{toast}</div>}
 
     {tab==="plan"&&<Plan/>}
     {tab==="discover"&&<Discover/>}
@@ -512,7 +512,7 @@ export default function App(){
     {tab==="info"&&<Info/>}
     {tab==="ai"&&<AI/>}
 
-    <div style={css.nav}>{tabs.map(t=><button key={t.k} onClick={()=>setTab(t.k)} style={css.nb(tab===t.k)}><span style={{fontSize:16}}>{t.i}</span><span>{t.l}</span></button>)}</div>
+    <div style={css.nav}>{tabs.map(t=><button key={t.k} onClick={()=>setTab(t.k)} style={css.nb(tab===t.k)}><span style={{fontSize:22}}>{t.i}</span><span>{t.l}</span></button>)}</div>
     <style>{`@keyframes fi{from{opacity:0;transform:translateX(-50%) translateY(-6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}*{-webkit-tap-highlight-color:transparent}input,select,button{font-family:'Outfit',sans-serif}`}</style>
   </div>;
 }
