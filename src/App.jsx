@@ -137,6 +137,11 @@ export default function App(){
   const[editSpot,setEditSpot]=useState(null);
   const[editFlight,setEditFlight]=useState(null);
   const[swDir,setSwDir]=useState(null);
+  const[disliked,setDisliked]=useState([]);
+  const[discCity,setDiscCity]=useState("all");
+  const[discCat,setDiscCat]=useState("all");
+  const[discView,setDiscView]=useState("swipe");
+  const[dark,setDark]=useState(false);
   const[infoSub,setInfoSub]=useState("flights");
   const[aiMsgs,setAiMsgs]=useState([]);
   const[aiIn,setAiIn]=useState("");
@@ -155,8 +160,12 @@ export default function App(){
   const movSpot=(sid,dir)=>{setDays(d=>d.map((dd,i)=>{if(i!==activeDay)return dd;const idx=dd.spots.findIndex(s=>s.id===sid);const ni=idx+dir;if(ni<0||ni>=dd.spots.length)return dd;const a=[...dd.spots];[a[idx],a[ni]]=[a[ni],a[idx]];return{...dd,spots:recalc(a)}}));show("↕️")};
   const addToDay=(pl,di)=>{setDays(d=>d.map((dd,i)=>i!==di?dd:{...dd,spots:recalc([...dd.spots,{...pl,id:"a"+Date.now(),startMin:1200,durMin:90,tips:pl.famous,transport:"—"}])}));show(`✅ ${pl.name} eklendi`)};
 
-  const swLike=()=>{if(!disc[0])return;setSwDir("r");setTimeout(()=>{setLiked(p=>[...p,disc[0]]);setDisc(p=>p.slice(1));setSwDir(null)},200)};
-  const swPass=()=>{if(!disc[0])return;setSwDir("l");setTimeout(()=>{setDisc(p=>p.slice(1));setSwDir(null)},200)};
+  const filteredDisc=disc.filter(d=>(discCity==="all"||d.city===discCity)&&(discCat==="all"||d.category===discCat));
+  const curDisc=filteredDisc[0];
+  const swLike=()=>{if(!curDisc)return;setSwDir("r");setTimeout(()=>{setLiked(p=>[...p,curDisc]);setDisc(p=>p.filter(x=>x.id!==curDisc.id));setSwDir(null)},200)};
+  const swPass=()=>{if(!curDisc)return;setSwDir("l");setTimeout(()=>{setDisliked(p=>[...p,curDisc]);setDisc(p=>p.filter(x=>x.id!==curDisc.id));setSwDir(null)},200)};
+  const restoreDisliked=(item)=>{setDisliked(p=>p.filter(x=>x.id!==item.id));setDisc(p=>[...p,item]);show("♻️ Geri yüklendi")};
+  const restoreAll=()=>{setDisc(p=>[...p,...disliked]);setDisliked([]);show("♻️ Tümü geri yüklendi")};
 
   const sendAi=async()=>{
     if(!aiIn.trim())return;const msg=aiIn.trim();setAiIn("");setAiMsgs(p=>[...p,{r:"user",t:msg}]);setAiLoad(true);
@@ -168,12 +177,16 @@ export default function App(){
   const dayBudget=day?.spots?.reduce((s,sp)=>s+(sp.cost||0)*((CITY[day.city]?.rate)||1),0)||0;
   const tripBudget=days.reduce((s,d)=>s+d.spots.reduce((ss,sp)=>ss+(sp.cost||0)*((CITY[d.city]?.rate)||1),0),0);
 
-  const css={app:{minHeight:"100vh",background:"#F5F0EB",fontFamily:"'Outfit',sans-serif",paddingBottom:64},nav:{position:"fixed",bottom:0,left:0,right:0,display:"flex",background:"#fff",borderTop:"1px solid #eee",zIndex:300},nb:a=>({flex:1,padding:"6px 0 4px",border:"none",background:"none",display:"flex",flexDirection:"column",alignItems:"center",gap:1,cursor:"pointer",color:a?"#1565C0":"#aaa",fontSize:9,fontWeight:a?700:500,fontFamily:"'Outfit',sans-serif"}),card:{background:"#fff",borderRadius:12,overflow:"hidden",boxShadow:"0 1px 6px rgba(0,0,0,.05)"}};
+  const D=dark;
+  const css={app:{minHeight:"100vh",background:D?"#0c0f14":"#F5F0EB",fontFamily:"'Outfit',sans-serif",paddingBottom:64,color:D?"#e0e0e0":"#333",transition:"background .3s,color .3s"},nav:{position:"fixed",bottom:0,left:0,right:0,display:"flex",background:D?"#1a1d24":"#fff",borderTop:`1px solid ${D?"#2a2d34":"#eee"}`,zIndex:300},nb:a=>({flex:1,padding:"6px 0 4px",border:"none",background:"none",display:"flex",flexDirection:"column",alignItems:"center",gap:1,cursor:"pointer",color:a?(D?"#64B5F6":"#1565C0"):(D?"#666":"#aaa"),fontSize:9,fontWeight:a?700:500,fontFamily:"'Outfit',sans-serif"}),card:{background:D?"#1a1d24":"#fff",borderRadius:12,overflow:"hidden",boxShadow:D?"0 1px 6px rgba(0,0,0,.2)":"0 1px 6px rgba(0,0,0,.05)"},txt:{color:D?"#e0e0e0":"#1a1a2e"},sub:{color:D?"#999":"#777"},bg2:D?"#222630":"#F3F4F6",bdr:D?"#2a2d34":"#eee",inp:{background:D?"#222630":"#fff",color:D?"#e0e0e0":"#333",border:`1px solid ${D?"#333":"#ddd"}`}};
 
   /* ═══ PLAN TAB ═══ */
   const Plan=()=><div>
     <div style={{background:ct.g,padding:"16px 14px 10px",color:"#fff"}}>
-      <div style={{fontSize:9,fontWeight:600,opacity:.7,letterSpacing:".12em",textTransform:"uppercase"}}>🧳 Aslan's Travel Guide</div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div style={{fontSize:9,fontWeight:600,opacity:.7,letterSpacing:".12em",textTransform:"uppercase"}}>🧳 Aslan's Travel Guide</div>
+        <button onClick={()=>setDark(p=>!p)} style={{background:"rgba(255,255,255,.2)",border:"none",borderRadius:14,padding:"3px 10px",color:"#fff",fontSize:11,cursor:"pointer"}}>{D?"☀️ Light":"🌙 Dark"}</button>
+      </div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:3}}>
         <h1 style={{margin:0,fontSize:16,fontWeight:900}}>{ct.f} {day.title}</h1>
         <div style={{background:"rgba(255,255,255,.18)",borderRadius:8,padding:"3px 8px",textAlign:"center"}}>
@@ -259,32 +272,105 @@ export default function App(){
   </div>;
 
   /* ═══ DISCOVER ═══ */
-  const Discover=()=>{const c=disc[0];return <div style={{padding:14,minHeight:"calc(100vh - 64px)",display:"flex",flexDirection:"column",alignItems:"center"}}>
-    <h2 style={{margin:"0 0 2px",fontSize:16,fontWeight:900,color:"#1a1a2e"}}>🧭 Keşfet</h2>
-    <p style={{margin:"0 0 12px",fontSize:11,color:"#999"}}>Sağa = beğen ❤️ · Sola = geç 👎</p>
-    {c?<div onTouchStart={e=>touchX.current=e.touches[0].clientX} onTouchEnd={e=>{if(!touchX.current)return;const d=e.changedTouches[0].clientX-touchX.current;if(d>50)swLike();else if(d<-50)swPass();touchX.current=null}} style={{width:"100%",maxWidth:340,...css.card,borderRadius:18,transition:"transform .2s,opacity .2s",transform:swDir==="r"?"translateX(100%) rotate(6deg)":swDir==="l"?"translateX(-100%) rotate(-6deg)":"none",opacity:swDir?0.4:1}}>
-      <div style={{position:"relative",height:200}}>
-        <img src={c.img} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-        <div style={{position:"absolute",bottom:0,left:0,right:0,background:"linear-gradient(transparent,rgba(0,0,0,.7))",padding:"30px 14px 12px"}}>
-          <div style={{display:"flex",alignItems:"center",gap:5}}>
-            <span style={{fontSize:18,fontWeight:900,color:"#fff"}}>{c.name}</span>
-            <span style={{background:CAT[c.category]?.c||"#666",color:"#fff",padding:"1px 7px",borderRadius:10,fontSize:8,fontWeight:700}}>{CAT[c.category]?.i} {CAT[c.category]?.l}</span>
+  const cityKeys=["all",...new Set(disc.concat(disliked).map(d=>d.city))];
+  const catKeys=["all",...new Set(disc.concat(disliked).map(d=>d.category))];
+  const Discover=()=> {
+    return <div style={{padding:14,minHeight:"calc(100vh - 64px)"}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+      <h2 style={{margin:0,fontSize:16,fontWeight:900,color:css.txt.color}}>🧭 Keşfet</h2>
+      <div style={{display:"flex",gap:4}}>
+        {[{k:"swipe",l:"Kartlar"},{k:"disliked",l:`Geçilenler (${disliked.length})`}].map(v=> (
+          <button key={v.k} onClick={()=>setDiscView(v.k)} style={{padding:"3px 8px",borderRadius:12,border:`1px solid ${discView===v.k?(D?"#64B5F6":"#1565C0"):css.bdr}`,background:discView===v.k?(D?"#1565C0":"#1565C0"):(D?"#1a1d24":"#fff"),color:discView===v.k?"#fff":css.sub.color,fontSize:9,fontWeight:discView===v.k?700:500,cursor:"pointer"}}>{v.l}</button>
+        ))}
+      </div>
+    </div>
+
+    {/* City filter */}
+    <div style={{display:"flex",gap:3,overflowX:"auto",marginBottom:6,paddingBottom:2}}>
+      {cityKeys.map(k=> (
+        <button key={k} onClick={()=>setDiscCity(k)} style={{flexShrink:0,padding:"3px 10px",borderRadius:14,border:discCity===k?`2px solid ${k==="all"?(D?"#64B5F6":"#1565C0"):(CITY[k]?.c||"#999")}`:`1px solid ${css.bdr}`,background:discCity===k?(k==="all"?(D?"#1565C0":"#1565C0"):(CITY[k]?.c||"#999")):(D?"#1a1d24":"#fff"),color:discCity===k?"#fff":css.sub.color,fontSize:10,fontWeight:discCity===k?700:500,cursor:"pointer",whiteSpace:"nowrap"}}>{k==="all"?"🌍 Tümü":`${CITY[k]?.f||""} ${CITY[k]?.n||k}`}</button>
+      ))}
+    </div>
+
+    {/* Category filter */}
+    <div style={{display:"flex",gap:3,overflowX:"auto",marginBottom:10,paddingBottom:2}}>
+      {catKeys.map(k=> (
+        <button key={k} onClick={()=>setDiscCat(k)} style={{flexShrink:0,padding:"3px 8px",borderRadius:14,border:discCat===k?`2px solid ${k==="all"?(D?"#64B5F6":"#1565C0"):(CAT[k]?.c||"#999")}`:`1px solid ${css.bdr}`,background:discCat===k?(k==="all"?(D?"#1565C0":"#1565C0"):(CAT[k]?.c||"#999")):(D?"#1a1d24":"#fff"),color:discCat===k?"#fff":css.sub.color,fontSize:9,fontWeight:discCat===k?700:500,cursor:"pointer",whiteSpace:"nowrap"}}>{k==="all"?"Tümü":`${CAT[k]?.i||""} ${CAT[k]?.l||k}`}</button>
+      ))}
+    </div>
+
+    {discView==="swipe" && (<div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
+      <p style={{margin:"0 0 8px",fontSize:11,color:css.sub.color}}>Sağa = beğen ❤️ · Sola = geç 👎</p>
+      {curDisc ? (
+        <div onTouchStart={e=>touchX.current=e.touches[0].clientX} onTouchEnd={e=>{if(!touchX.current)return;const dd=e.changedTouches[0].clientX-touchX.current;if(dd>50)swLike();else if(dd<-50)swPass();touchX.current=null}} style={{width:"100%",maxWidth:340,...css.card,borderRadius:18,transition:"transform .2s,opacity .2s",transform:swDir==="r"?"translateX(100%) rotate(6deg)":swDir==="l"?"translateX(-100%) rotate(-6deg)":"none",opacity:swDir?0.4:1}}>
+          <div style={{position:"relative",height:200}}>
+            <img src={curDisc.img} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+            <div style={{position:"absolute",bottom:0,left:0,right:0,background:"linear-gradient(transparent,rgba(0,0,0,.7))",padding:"30px 14px 12px"}}>
+              <div style={{display:"flex",alignItems:"center",gap:5}}>
+                <span style={{fontSize:18,fontWeight:900,color:"#fff"}}>{curDisc.name}</span>
+                <span style={{background:CAT[curDisc.category]?.c||"#666",color:"#fff",padding:"1px 7px",borderRadius:10,fontSize:8,fontWeight:700}}>{CAT[curDisc.category]?.i} {CAT[curDisc.category]?.l}</span>
+              </div>
+              <div style={{color:"#FFD54F",fontSize:10,fontWeight:600,marginTop:1}}>{CITY[curDisc.city]?.f} {CITY[curDisc.city]?.n} · 💰 {curDisc.cost} {curDisc.costCur} ≈ ₺{toTRY(curDisc.cost,curDisc.costCur)}</div>
+            </div>
           </div>
-          <div style={{color:"#FFD54F",fontSize:10,fontWeight:600,marginTop:1}}>{CITY[c.city]?.f} {CITY[c.city]?.n} · 💰 {c.cost} {c.costCur} ≈ ₺{toTRY(c.cost,c.costCur)}</div>
+          <div style={{padding:"12px 14px"}}>
+            <p style={{margin:"0 0 6px",fontSize:12,color:css.sub.color,lineHeight:1.45}}>{curDisc.desc}</p>
+            {curDisc.famous && <div style={{padding:"6px 10px",background:D?"#332B00":"#FFF8E1",borderRadius:8,marginBottom:10}}><span style={{fontSize:10,fontWeight:700,color:"#FF8F00"}}>⭐ </span><span style={{fontSize:10,color:D?"#FFD54F":"#5D4037"}}>{curDisc.famous}</span></div>}
+            <div style={{display:"flex",gap:8,justifyContent:"center"}}>
+              <button onClick={swPass} style={{width:50,height:50,borderRadius:"50%",border:"2px solid #EF5350",background:D?"#1a1d24":"#fff",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>👎</button>
+              <a href={`https://www.google.com/maps/search/?api=1&query=${curDisc.lat},${curDisc.lng}`} target="_blank" rel="noopener noreferrer" style={{width:40,height:40,borderRadius:"50%",border:"2px solid #42A5F5",background:D?"#1a1d24":"#fff",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",marginTop:5}}>📍</a>
+              <button onClick={swLike} style={{width:50,height:50,borderRadius:"50%",border:"2px solid #66BB6A",background:D?"#1a1d24":"#fff",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>❤️</button>
+            </div>
+          </div>
         </div>
-      </div>
-      <div style={{padding:"12px 14px"}}>
-        <p style={{margin:"0 0 6px",fontSize:12,color:"#555",lineHeight:1.45}}>{c.desc}</p>
-        {c.famous&&<div style={{padding:"6px 10px",background:"#FFF8E1",borderRadius:8,marginBottom:10}}><span style={{fontSize:10,fontWeight:700,color:"#FF8F00"}}>⭐ </span><span style={{fontSize:10,color:"#5D4037"}}>{c.famous}</span></div>}
-        <div style={{display:"flex",gap:8,justifyContent:"center"}}>
-          <button onClick={swPass} style={{width:50,height:50,borderRadius:"50%",border:"2px solid #EF5350",background:"#fff",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>👎</button>
-          <a href={`https://www.google.com/maps/search/?api=1&query=${c.lat},${c.lng}`} target="_blank" rel="noopener noreferrer" style={{width:40,height:40,borderRadius:"50%",border:"2px solid #42A5F5",background:"#fff",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",marginTop:5}}>📍</a>
-          <button onClick={swLike} style={{width:50,height:50,borderRadius:"50%",border:"2px solid #66BB6A",background:"#fff",fontSize:20,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>❤️</button>
+      ) : (
+        <div style={{textAlign:"center",color:css.sub.color,marginTop:50}}>
+          <div style={{fontSize:40}}>🎉</div>
+          <div style={{fontSize:13,fontWeight:600,marginTop:6}}>Bu filtrede başka öneri yok!</div>
+          <p style={{fontSize:11}}>Filtreleri değiştir veya AI Rehber'den yeni öneriler iste.</p>
         </div>
+      )}
+      <div style={{marginTop:8,fontSize:10,color:css.sub.color}}>{filteredDisc.length} öneri kaldı (toplam {disc.length})</div>
+    </div>)}
+
+    {/* Disliked / Passed items */}
+    {discView==="disliked" && (
+      <div>
+        {disliked.length > 0 && (
+          <button onClick={restoreAll} style={{width:"100%",padding:"8px",borderRadius:10,border:"none",background:D?"#1565C0":"#E3F2FD",color:D?"#fff":"#1565C0",fontSize:11,fontWeight:700,cursor:"pointer",marginBottom:8}}>♻️ Tümünü Geri Yükle ({disliked.length})</button>
+        )}
+        {disliked.length === 0 ? (
+          <div style={{textAlign:"center",color:css.sub.color,marginTop:40}}>
+            <div style={{fontSize:36}}>✨</div>
+            <div style={{fontSize:12,fontWeight:600,marginTop:6}}>Geçilen yer yok</div>
+          </div>
+        ) : (
+          <div style={{display:"flex",flexDirection:"column",gap:6}}>
+            {disliked.filter(d=>(discCity==="all"||d.city===discCity)&&(discCat==="all"||d.category===discCat)).map(p=> {
+              const cat=CAT[p.category]||CAT.explore;
+              return <div key={p.id} style={{...css.card,display:"flex",overflow:"hidden"}}>
+                <img src={p.img} alt="" style={{width:80,height:80,objectFit:"cover",flexShrink:0,opacity:0.7}}/>
+                <div style={{flex:1,padding:"6px 8px",display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
+                  <div>
+                    <div style={{display:"flex",alignItems:"center",gap:3}}>
+                      <span style={{fontSize:12,fontWeight:800,color:css.txt.color}}>{p.name}</span>
+                      <span style={{fontSize:7,background:cat.c,color:"#fff",padding:"0 5px",borderRadius:6,fontWeight:700}}>{cat.i}</span>
+                    </div>
+                    <div style={{fontSize:9,color:css.sub.color}}>{CITY[p.city]?.f} {CITY[p.city]?.n} · {p.famous}</div>
+                  </div>
+                  <div style={{display:"flex",gap:3}}>
+                    <button onClick={()=>restoreDisliked(p)} style={{flex:1,padding:"4px 8px",background:D?"#1B5E20":"#E8F5E9",color:D?"#81C784":"#2E7D32",border:"none",borderRadius:8,fontSize:10,fontWeight:700,cursor:"pointer"}}>♻️ Geri Al</button>
+                    <button onClick={()=>{setDisliked(prev=>prev.filter(x=>x.id!==p.id));setLiked(prev=>[...prev,p]);show("❤️ Beğenildi")}} style={{padding:"4px 8px",background:D?"#B71C1C":"#FCE4EC",color:D?"#EF9A9A":"#C62828",border:"none",borderRadius:8,fontSize:10,fontWeight:700,cursor:"pointer"}}>❤️ Beğen</button>
+                  </div>
+                </div>
+              </div>;
+            })}
+          </div>
+        )}
       </div>
-    </div>:<div style={{textAlign:"center",color:"#ccc",marginTop:50}}><div style={{fontSize:40}}>🎉</div><div style={{fontSize:13,fontWeight:600,marginTop:6}}>Tüm önerileri gördün!</div><p style={{fontSize:11}}>AI Rehber'den yeni öneriler iste.</p></div>}
-    <div style={{marginTop:8,fontSize:10,color:"#bbb"}}>{disc.length} kaldı</div>
-  </div>};
+    )}
+  </div>;
+  };
 
   /* ═══ LIKED ═══ */
   const Liked=()=><div style={{padding:14}}>
@@ -418,7 +504,7 @@ export default function App(){
 
   return <div style={css.app}>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-    {toast&&<div style={{position:"fixed",top:12,left:"50%",transform:"translateX(-50%)",background:"#1a1a2e",color:"#fff",padding:"6px 16px",borderRadius:18,fontSize:11,fontWeight:600,zIndex:999,boxShadow:"0 4px 16px rgba(0,0,0,.2)",animation:"fi .3s"}}>{toast}</div>}
+    {toast&&<div style={{position:"fixed",top:12,left:"50%",transform:"translateX(-50%)",background:D?"#fff":"#1a1a2e",color:D?"#1a1a2e":"#fff",padding:"6px 16px",borderRadius:18,fontSize:11,fontWeight:600,zIndex:999,boxShadow:"0 4px 16px rgba(0,0,0,.2)",animation:"fi .3s"}}>{toast}</div>}
 
     {tab==="plan"&&<Plan/>}
     {tab==="discover"&&<Discover/>}
